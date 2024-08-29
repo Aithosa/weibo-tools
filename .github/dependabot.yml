@@ -5,7 +5,13 @@
 
 version: 2
 updates:
-  - package-ecosystem: "" # See documentation for possible values
+  - package-ecosystem: github-actions
+    # Workflow files in .github/workflows will be checked
+    directory: /
+    schedule:
+      interval: monthly
+  - package-ecosystem: "pip"
+    # pyproject.toml will be checked
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
