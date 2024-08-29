@@ -29,9 +29,14 @@ jobs:
 
       - name: Generate requirements.txt
         run: |
+          rm -f requirements.txt
           pipreqs . --force
-
+      - name: Check for changes
+        id: git_diff
+        run: |
+          git diff --exit-code || echo "::set-output name=changed::true"
       - name: Commit requirements.txt
+        if: steps.git_diff.outputs.changed == 'true'
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
