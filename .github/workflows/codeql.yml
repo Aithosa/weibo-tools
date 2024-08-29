@@ -56,6 +56,22 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    # Run a shell command to check if the repository is empty
+    - name: Create dummy file if no Python files are found
+      # Run a shell command to check if the repository contains any Python files
+      run: |
+        # Find all .py files in the repository
+        py_files=$(find . -name "*.py")
+
+        # Check if there are any Python files
+        if [ -z "$py_files" ]; then
+          # Create a 'src' directory if it doesn't exist
+          mkdir -p src
+
+          # Create a dummy Python file inside the 'src' directory
+          echo "# dummy file" > src/dummy.py
+        fi
+
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
