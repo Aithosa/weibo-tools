@@ -7,6 +7,9 @@ on: [push]
 #    branches:
 #      - '**'  # Listen to push events on all branches
 
+permissions:
+  contents: write
+
 jobs:
   update-requirements:
     runs-on: ubuntu-latest
