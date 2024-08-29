@@ -1,11 +1,10 @@
 name: Update Requirements
 
-on: [push]
+#on: [push]
 
-#on:
-#  push:
-#    branches:
-#      - '**'  # Listen to push events on all branches
+on:
+  pull_request:
+    types: [opened, synchronize]
 
 permissions:
   contents: write
