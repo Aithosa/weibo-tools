@@ -1,0 +1,10 @@
+urls:
+  #  follow
+  get_weibo_follow: "https://weibo.com/ajax/profile/followContent?page={}&next_cursor=50"
+
+  # post
+  add_weibo_url: "https://weibo.com/aj/mblog/add?ajwvr=6&__rnd=1510279745199"
+  delete_url: "https://weibo.com/aj/mblog/del?ajwvr=6"
+
+  # post list
+  get_weibo_list_url: "https://weibo.com/ajax/statuses/mymblog?uid={}&page={}&feature=0&since_id=5051758198395820"
