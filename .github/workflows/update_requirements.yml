@@ -1,10 +1,10 @@
 name: Update Requirements
 
-on: [push]
-
-#on:
-#  pull_request:
-#    types: [opened, synchronize]
+on:
+  push:
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: write
