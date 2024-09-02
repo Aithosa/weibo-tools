@@ -13,7 +13,8 @@ jobs:
       matrix:
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
@@ -46,3 +47,4 @@ jobs:
     - name: Analysing the code with pylint
       run: |
         pylint $(git ls-files '*.py')
+      if: ${{ github.event_name == 'pull_request' || (github.event_name == 'push' && !contains(github.event.head_commit.message, 'Merge pull request')) }}
