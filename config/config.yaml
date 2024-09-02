@@ -8,3 +8,6 @@ urls:
 
   # post list
   get_weibo_list_url: "https://weibo.com/ajax/statuses/mymblog?uid={}&page={}&feature=0&since_id=5051758198395820"
+
+base:
+  data_path: "data"
