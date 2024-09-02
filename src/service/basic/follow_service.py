@@ -1,3 +1,8 @@
+"""
+Module to handle follow service operations, including fetching, merging,
+and compressing follow data.
+"""
+
 import json
 import logging
 import os
