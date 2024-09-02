@@ -7,8 +7,9 @@ This module sets up the logging configuration and loads the application configur
 import logging.config
 
 # Setup logging once, as a global configuration
-from config.logging_config import setup_logging
-from config.config_loader import load_config
+from .config.logging_config import setup_logging
+from .config.config_loader import load_config
+from .service.basic.follow_service import FollowService
 
 # Setup logging once, as a global configuration
 setup_logging()
@@ -20,16 +21,19 @@ logger = logging.getLogger('main')
 config = load_config()
 
 if __name__ == "__main__":
-    # 提取配置值
-    web_cookie = config['auth']['web_cookie']
-    referer = config['auth']['referer']
+    # # 提取配置值
+    # web_cookie = config['auth']['web_cookie']
+    # referer = config['auth']['referer']
+    #
+    # logger.info("Web Cookie: %s", web_cookie)
+    # logger.info("Referer: %s", referer)
+    #
+    # # Log some messages
+    # logger.debug("This is a debug message")
+    # logger.info("This is an info message")
+    # logger.warning("This is a warning message")
+    # logger.error("This is an error message")
+    # logger.critical("This is a critical message")
 
-    logger.info("Web Cookie: %s", web_cookie)
-    logger.info("Referer: %s", referer)
-
-    # Log some messages
-    logger.debug("This is a debug message")
-    logger.info("This is an info message")
-    logger.warning("This is a warning message")
-    logger.error("This is an error message")
-    logger.critical("This is a critical message")
+    follow_service = FollowService()
+    follow_service.get_all_follow()
