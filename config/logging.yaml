@@ -6,17 +6,17 @@ handlers:
   console:
     class: logging.StreamHandler
     formatter: simple
-    level: DEBUG
+    level: INFO
   file:
     class: logging.FileHandler
     filename: ../logs/app.log
     formatter: simple
-    level: DEBUG
+    level: INFO
 loggers:
   appLogger:
     handlers: [console, file]
-    level: DEBUG
+    level: INFO
     propagate: no
 root:
   handlers: [console, file]
-  level: DEBUG
+  level: INFO
