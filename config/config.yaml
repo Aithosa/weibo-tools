@@ -1,13 +1,39 @@
 urls:
-  #  follow
-  get_weibo_follow: "https://weibo.com/ajax/profile/followContent?page={}&next_cursor=50"
+  follow:
+    #  follow
+    get_weibo_follow: "https://weibo.com/ajax/profile/followContent?page={}&next_cursor=50"
 
-  # post
-  add_weibo_url: "https://weibo.com/aj/mblog/add?ajwvr=6&__rnd=1510279745199"
-  delete_url: "https://weibo.com/aj/mblog/del?ajwvr=6"
+  group:
+    # 管理自定义分组查看
+    get_profile_group: "https://weibo.com/ajax/profile/getGroups?showBilateral=1"
+    # 这个参数不同
+    # get_group: "https://weibo.com/ajax/profile/getGroups?target_uid=2645861077&filterType=system&hasRecom=true"
+    # {"name":"test1"}
+    post_create_group: "https://weibo.com/ajax/profile/createGroup"
+    # {"name":"test1","isOpen":true,"list_id":"5074698225844231"}
+    post_update_group: "https://weibo.com/ajax/profile/updateGroup"
+    # {"list_id":"5074698225844231"}
+    post_destroy_group: "https://weibo.com/ajax/profile/destroyGroup"
+    # 微博关注分组(指定用户查询)
+    get_user_group: "https://weibo.com/ajax/profile/getGroupList?uid=5480863590"
+    # 微博关注分组(在指定用户卡片上修改时获取的分组情况)
+    get_all_groups: "https://weibo.com/ajax/feed/allGroups?is_new_segment=1&fetch_hot=1"
 
-  # post list
-  get_weibo_list_url: "https://weibo.com/ajax/statuses/mymblog?uid={}&page={}&feature=0&since_id=5051758198395820"
+  post:
+    post_add_weibo_url: "https://weibo.com/aj/mblog/add?ajwvr=6&__rnd=1510279745199"
+    post_delete_url: "https://weibo.com/aj/mblog/del?ajwvr=6"
+
+  blog:
+    # 全部微博
+    get_weibo_list_url: "https://weibo.com/ajax/statuses/mymblog?uid={}&page={}&feature=0&since_id=5051758198395820"
+    # 原创微博
+    get_search_profile_url: "https://weibo.com/ajax/statuses/searchProfile?uid={}&page={}&since_id=5057294913504845&hasori={}"
+    # 长微博点展开 OuQHavnUZ
+    get_weibo_longtext_url: "https://weibo.com/ajax/statuses/longtext?id={}"
+
+  favorites:
+    get_all_favorites_url: "https://weibo.com/ajax/favorites/all_fav?uid={}&page={}&with_total=true"
+    get_favorites_tag_url: "https://weibo.com/ajax/favorites/tags?page={}&is_show_total=1"
 
 base:
   data_path: "data"
