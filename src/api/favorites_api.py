@@ -59,13 +59,13 @@ class FavoriteApi(BaseApi):
             response = self.session.get(formatted_url)
             # Raises an HTTPError if the HTTP request returned an unsuccessful status code
             response.raise_for_status()
-            self.logger.info(
-                f"Fetching favorites blog list for UID {uid}, page {page}. Response status: {response.status_code}")
+            self.logger.info("Fetching favorites blog list for UID %d, page %d. Response status: ",
+                             uid, page, response.status_code)
 
             parsed_response = self._check_and_return_json(response)
             return parsed_response
         except HTTPError as http_err:
-            self.logger.error(f"HTTP error occurred: {http_err}")
+            self.logger.error("HTTP error occurred: %s", http_err)
             raise
 
     def get_favorites_tag(self, page=1, is_show_total=1):
@@ -100,12 +100,43 @@ class FavoriteApi(BaseApi):
             response = self.session.get(formatted_url)
             # Raises an HTTPError if the HTTP request returned an unsuccessful status code
             response.raise_for_status()
-            self.logger.info(f"Fetching favorites tag, page {page}. Response status: {response.status_code}")
+            self.logger.info("Fetching favorites tag, page %d. Response status: %d",
+                             page, response.status_code)
 
             parsed_response = self._check_and_return_json(response)
             return parsed_response
         except HTTPError as http_err:
-            self.logger.error(f"HTTP error occurred: {http_err}")
+            self.logger.error("HTTP error occurred: %s", http_err)
             raise
 
-    # 修改收藏的标签，查看收藏的标签
+    def post_destroy_favorites(self, id=None):
+        """
+        Deletes a favorite blog entry by sending a POST request to the appropriate endpoint.
+
+        Args:
+            id (int, optional): The identifier of the favorite blog entry to delete. Defaults to None.
+
+        Returns:
+            dict: JSON response from the server indicating the result of the deletion operation.
+
+        Raises:
+            HTTPError: If an HTTP error occurs during the request.
+            ValueError: If the 'id' parameter is not provided.
+        """
+        form_data = {"id": id}
+
+        post_destroy_favorites = self.config['urls']['favorites']['post_destroy_favorites']
+        base_url = remove_query_params(post_destroy_favorites)
+
+        try:
+            response = self.session.post(base_url, data=form_data)
+            response.raise_for_status()
+            self.logger.info("Destroying favorites blog %d for UID %d. Response status: %d",
+                             id, self.uid, response.status_code)
+
+            return response.json()
+        except HTTPError as http_err:
+            self.logger.error("HTTP error occurred: %s", http_err)
+            raise
+
+# TODO 修改收藏的标签，查看收藏的标签

@@ -1,5 +1,7 @@
 import logging
-from urllib.parse import urlencode
+import os
+import shutil
+from urllib.parse import urlencode, urlparse, unquote
 
 from requests.exceptions import HTTPError
 
@@ -126,13 +128,13 @@ class BlogApi(BaseApi):
             self.logger.error(f"HTTP error occurred: {http_err}")
             raise
 
-    def get_weibo_longtext(self, id=None):
+    def get_weibo_longtext(self, mblogid=None):
         """
         Retrieve the full text of a long-form blog post given its ID.
         example: "https://weibo.com/ajax/statuses/longtext?id={}"
 
         Args:
-            id (str, required): The unique identifier of the blog post.
+            mblogid (str, required): The unique identifier of the blog post.
 
         Returns:
             dict: JSON response from the API containing the long text of the blog post.
@@ -142,12 +144,12 @@ class BlogApi(BaseApi):
             HTTPError: On unsuccessful HTTP request.
         """
         # Ensure uid is provided either via class initialization or method argument
-        if id is None:
+        if mblogid is None:
             raise ValueError("User ID (uid) must be provided either in constructor or as a method argument.")
 
         # Prepare URL parameters, automatically excluding None values
         params = {
-            'id': id,
+            'id': mblogid,
         }
         # Use urlencode to construct the query string, it will ignore keys with None values
         query_string = urlencode(params, doseq=True, safe=':' """, encode_plus=False""")
@@ -161,7 +163,7 @@ class BlogApi(BaseApi):
             response = self.session.get(formatted_url)
             # Raises an HTTPError if the HTTP request returned an unsuccessful status code
             response.raise_for_status()
-            self.logger.info(f"Fetched blog longtext for ID {id}. Response status: {response.status_code}")
+            self.logger.info(f"Fetched blog longtext for ID {mblogid}. Response status: {response.status_code}")
 
             # LoggingSession has already check json transform
             return response.json()
@@ -172,3 +174,38 @@ class BlogApi(BaseApi):
         # response = self.session.get(formatted_url)
         # self.logger.info(f"Fetching blog longtext for ID {id}. Response status: {response.status_code}")
         # return response
+
+    def download_image(self, image_url):
+        """
+        Download an image from a specified URL.
+
+        Args:
+            image_url (str, required): The URL of the image to be downloaded.
+
+        Returns:
+            tuple
+                A tuple containing:
+                - filename: The extracted filename from the URL, suitable for saving the downloaded content.
+                - response.raw: Raw content of the HTTP response, can be saved directly to a file.
+
+        Raises:
+            HTTPError:
+                If an HTTP error occurs during the image download. The error message is logged before re-raising.
+        """
+        if image_url is None:
+            raise ValueError("image_url must be provided either in constructor or as a method argument.")
+
+        try:
+            response = self.session.get(image_url, stream=True)
+            response.raise_for_status()  # Raises an HTTPError if the HTTP request returned an unsuccessful status code
+
+            # parsed file name
+            parsed_url = urlparse(image_url)
+            path = parsed_url.path
+            filename = unquote(path.split('/')[-1])
+
+            self.logger.info("Image downloaded from %s", image_url)
+            return filename, response.raw
+        except HTTPError as http_err:
+            self.logger.error(f"HTTP error occurred while downloading image: %s", http_err)
+            raise
