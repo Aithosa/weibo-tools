@@ -1,6 +1,8 @@
+base:
+  data_path: "data"
+
 urls:
   follow:
-    #  follow
     get_weibo_follow: "https://weibo.com/ajax/profile/followContent?page={}&next_cursor=50"
 
   group:
@@ -28,12 +30,13 @@ urls:
     get_weibo_list_url: "https://weibo.com/ajax/statuses/mymblog?uid={}&page={}&feature=0&since_id=5051758198395820"
     # 原创微博
     get_search_profile_url: "https://weibo.com/ajax/statuses/searchProfile?uid={}&page={}&since_id=5057294913504845&hasori={}"
-    # 长微博点展开 OuQHavnUZ
+    # 长微博点展开 "isLongText": true, mblogid : "OBplby43K"
     get_weibo_longtext_url: "https://weibo.com/ajax/statuses/longtext?id={}"
+    # 获取微博正文的图片(正文有图片的完整url，但是要确认原图是哪个，似乎是pic_infos->largest那个)
+    get_blog_pic_url: "https://wx1.sinaimg.cn/orj360/bfe54654gy1hul6j32c1tj20qo0f0abo.jpg"
 
   favorites:
     get_all_favorites_url: "https://weibo.com/ajax/favorites/all_fav?uid={}&page={}&with_total=true"
     get_favorites_tag_url: "https://weibo.com/ajax/favorites/tags?page={}&is_show_total=1"
-
-base:
-  data_path: "data"
+    # {"id": "5089037920504901"}
+    post_destroy_favorites: "https://weibo.com/ajax/statuses/destoryFavorites"

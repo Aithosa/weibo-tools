@@ -82,7 +82,7 @@ class FollowApi(BaseApi):
         example: "https://weibo.com/ajax/profile/getGroups?showBilateral=1"
 
         Args:
-            showBilateral (int, optional): Flag to include bilateral relationships. Defaults to 1.
+            show_bilateral (int, optional): Flag to include bilateral relationships. Defaults to 1.
 
         Returns:
             dict: JSON response with group details.
