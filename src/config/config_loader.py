@@ -3,8 +3,11 @@ Module for loading configuration from YAML files.
 """
 
 import os
+
 import yaml
-from .config_path import CONFIG_DIR
+from dotenv import load_dotenv
+
+from src.config.config_path import CONFIG_DIR, PROJECT_ROOT_DIR
 
 
 def load_config():
@@ -24,6 +27,13 @@ def load_config():
     # Read the secrets configuration file
     with open(secrets_config_path, 'r', encoding='utf-8') as file:
         secrets = yaml.safe_load(file)
+
+    # Load .env
+    load_dotenv(dotenv_path=PROJECT_ROOT_DIR / ".env")
+    web_cookie = os.getenv('WEB_COOKIE')
+    referer = os.getenv('REFERER')
+    secrets['auth']['web_cookie'] = web_cookie
+    secrets['auth']['referer'] = referer
 
     # Merge configuration information
     # config['auth'] = secrets['auth']
