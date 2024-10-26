@@ -1,3 +1,10 @@
+"""
+This module contains the PostApi class for interacting with the Weibo post API.
+
+Classes:
+    PostApi: A class to interact with the Weibo post API.
+"""
+
 import logging
 
 from requests import HTTPError
@@ -29,7 +36,7 @@ class PostApi(BaseApi):
     def delete_weibo(self, post_id=None):
         """
         Deletes a weibo post based on the provided post ID.
-        example: "https://weibo.com/aj/mblog/del?ajwvr=6"
+        Example: "https://weibo.com/aj/mblog/del?ajwvr=6"
 
         Args:
             post_id (int): The unique identifier of the post to be deleted.
@@ -50,17 +57,16 @@ class PostApi(BaseApi):
         try:
             response = self.session.post(base_url, data=form_data)
             response.raise_for_status()
-            self.logger.info(f"Deleting blog for UID {self.uid}. Response status: {response.status_code}")
-
+            self.logger.info("Deleting blog for UID %s. Response status: %s", self.uid, response.status_code)
             return response.json()
         except HTTPError as http_err:
-            self.logger.error(f"HTTP error occurred: {http_err}")
+            self.logger.error("HTTP error occurred: %s", http_err)
             raise
 
     def post_weibo(self, content=None):
         """
         Posts a new weibo entry with the specified content.
-        example: "https://weibo.com/aj/mblog/add?ajwvr=6&__rnd=1510279745199"
+        Example: "https://weibo.com/aj/mblog/add?ajwvr=6&__rnd=1510279745199"
 
         Args:
             content (str): The content to be posted on Weibo.
@@ -94,9 +100,8 @@ class PostApi(BaseApi):
         try:
             response = self.session.post(base_url, data=form_data)
             response.raise_for_status()
-            self.logger.info(f"Posting blog for UID {self.uid}. Response status: {response.status_code}")
-
+            self.logger.info("Posting blog for UID %s. Response status: %s", self.uid, response.status_code)
             return response.json()
         except HTTPError as http_err:
-            self.logger.error(f"HTTP error occurred: {http_err}")
+            self.logger.error("HTTP error occurred: %s", http_err)
             raise

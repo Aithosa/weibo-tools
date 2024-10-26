@@ -1,7 +1,11 @@
+"""
+This module provides the BaseApi class and utility functions to handle user ID extraction and URL manipulation,
+as well as setting up HTTP sessions for API interactions.
+"""
+
 import logging
 from urllib.parse import urlparse, urlunparse
 
-import requests
 from requests import Response
 
 from src.config.config_loader import load_config
@@ -9,6 +13,15 @@ from src.utils.logging_session import LoggingSession
 
 
 def extract_user_id(referer):
+    """
+    Extracts the user ID from the referer URL.
+
+    Args:
+        referer (str): The referer URL.
+
+    Returns:
+        str: User ID extracted from the URL path.
+    """
     parsed_url = urlparse(referer)
     path_parts = parsed_url.path.strip('/').split('/')
     user_id = path_parts[-1] if path_parts else None
@@ -16,9 +29,20 @@ def extract_user_id(referer):
 
 
 def get_uid(config):
+    """
+    Retrieves the user ID from the configuration.
+
+    Args:
+        config (dict): Configuration settings containing the 'auth' key.
+
+    Returns:
+        str: User ID from the configuration.
+
+    Raises:
+        ValueError: If the user ID could not be determined from the configuration.
+    """
     referer = config['auth']['referer']
     uid = extract_user_id(referer)
-
     if uid is None:
         raise ValueError("User ID (uid) must be provided either in constructor or as a method argument.")
     return uid
@@ -26,19 +50,30 @@ def get_uid(config):
 
 def remove_query_params(url):
     """
-    移除URL中的查询参数并返回无参数的基础URL。
+    Removes query parameters from the URL and returns the base URL without parameters.
 
-    :param url: 原始URL，可能包含查询参数。
-    :return: 无查询参数的URL。
+    Args:
+        url (str): Original URL that may contain query parameters.
+
+    Returns:
+        str: URL without query parameters.
     """
     parsed_url = urlparse(url)
-    # 重新构建URL，忽略parse_qs得到的查询参数部分
     no_query_url = urlunparse(
         (parsed_url.scheme, parsed_url.netloc, parsed_url.path, parsed_url.params, '', parsed_url.fragment))
     return no_query_url
 
 
 class BaseApi:
+    """
+    Base API class providing common functionalities for API interactions.
+
+    Attributes:
+        session: The session object to make HTTP requests.
+        config: The configuration dictionary containing necessary settings.
+        logger: The logger to log information.
+    """
+
     def __init__(self, session=None, config=None):
         """
         Initializes the BaseApi with a session and config.
@@ -74,9 +109,7 @@ class BaseApi:
 
         web_cookie = config['auth']['web_cookie']
         referer = config['auth']['referer']
-
         session = LoggingSession()
-        # session = requests.session()
         header = {
             'Referer': referer,
             'Cookie': web_cookie,
@@ -84,7 +117,6 @@ class BaseApi:
             'Authorization': "Bearer ..."
         }
         session.headers.update(header)
-
         return session
 
     def _check_and_return_json(self, response: Response):
@@ -103,7 +135,7 @@ class BaseApi:
         """
         try:
             return response.json()
-        except ValueError as e:
-            self.logger.info(f"Response content is not a valid JSON: {response.text}")
-            self.logger.error(f"Failed to parse response as JSON: {e}")
-            raise ValueError("Response content is not a valid JSON.") from e
+        except ValueError as value_err:
+            self.logger.info("Response content is not a valid JSON: %s", response.text)
+            self.logger.error("Failed to parse response as JSON: %s", value_err)
+            raise ValueError("Response content is not a valid JSON.") from value_err

@@ -1,9 +1,17 @@
+"""
+This module defines the BlogApi class, which provides methods for interacting with Weibo's blogging features.
+It includes functionalities to fetch blog lists, original blog posts, and long-text content,
+as well as download images associated with blog posts.
+
+Classes:
+    BlogApi: A class for interacting with Weibo's blog API.
+"""
+
 import logging
-import os
-import shutil
+import time
 from urllib.parse import urlencode, urlparse, unquote
 
-from requests.exceptions import HTTPError
+from requests.exceptions import HTTPError, ChunkedEncodingError, RequestException
 
 from src.api.base_api import BaseApi, remove_query_params
 
@@ -14,6 +22,11 @@ class BlogApi(BaseApi):
     """
     BlogApi is a specialized API client for interacting with Weibo's blogging features.
     It inherits from BaseApi and adds methods to fetch blog lists, original blog posts, and long-text content.
+
+    Attributes:
+        session: The session object to make HTTP requests.
+        config: The configuration dictionary containing necessary settings.
+        logger: The logger to log information.
     """
 
     def __init__(self, session=None, config=None, uid=None):
@@ -27,6 +40,7 @@ class BlogApi(BaseApi):
         """
         super().__init__(session, config)
         self.logger = logging.getLogger(self.__class__.__name__)
+        self.uid = uid
 
     def get_blog_list(self, uid=None, page=1, feature=0, since_id=None):
         """
@@ -59,23 +73,21 @@ class BlogApi(BaseApi):
             'since_id': since_id,
         }
         # Use urlencode to construct the query string, it will ignore keys with None values
-        query_string = urlencode(params, doseq=True, safe=':' """, encode_plus=False""")
+        query_string = urlencode(params, doseq=True, safe=':')
 
-        # Construct the final URL
-        get_weibo_list_url = self.config['urls']['blog']['get_weibo_list_url']
-        base_url = remove_query_params(get_weibo_list_url)
+        # query_string = urlencode(params, doseq=True)
+        base_url = remove_query_params(self.config['urls']['blog']['get_weibo_list_url'])
         formatted_url = f"{base_url}?{query_string}"
 
         try:
             response = self.session.get(formatted_url)
             # Raises an HTTPError if the HTTP request returned an unsuccessful status code
             response.raise_for_status()
-            self.logger.info(f"Fetching blog list for UID {uid}, page {page}. Response status: {response.status_code}")
-
-            # LoggingSession has already check json transform
+            self.logger.info("Fetching blog list for UID %s, page %s. Response status: %s",
+                             uid, page, response.status_code)
             return response.json()
         except HTTPError as http_err:
-            self.logger.error(f"HTTP error occurred: {http_err}")
+            self.logger.error("HTTP error occurred: %s", http_err)
             raise
 
     def get_original_blog_list(self, uid=None, page=1, since_id=None, hasori=None):
@@ -96,36 +108,29 @@ class BlogApi(BaseApi):
             ValueError: If no user ID is provided.
             HTTPError: On unsuccessful HTTP request.
         """
-        # Ensure uid is provided either via class initialization or method argument
         uid = uid or self.uid
         if uid is None:
             raise ValueError("User ID (uid) must be provided either in constructor or as a method argument.")
 
-        # Prepare URL parameters, automatically excluding None values
         params = {
             'uid': uid,
             'page': page,
             'since_id': since_id,
             'hasori': hasori,
         }
-        # Use urlencode to construct the query string, it will ignore keys with None values
-        query_string = urlencode(params, doseq=True, safe=':' """, encode_plus=False""")
 
-        # Construct the final URL
-        get_search_profile_url = self.config['urls']['blog']['get_search_profile_url']
-        base_url = remove_query_params(get_search_profile_url)
+        query_string = urlencode(params, doseq=True)
+        base_url = remove_query_params(self.config['urls']['blog']['get_search_profile_url'])
         formatted_url = f"{base_url}?{query_string}"
 
         try:
             response = self.session.get(formatted_url)
-            # Raises an HTTPError if the HTTP request returned an unsuccessful status code
             response.raise_for_status()
-            self.logger.info(f"Fetching blog list for UID {uid}, page {page}. Response status: {response.status_code}")
-
-            # LoggingSession has already check json transform
+            self.logger.info("Fetching original blog list for UID %s, page %s. Response status: %s",
+                             uid, page, response.status_code)
             return response.json()
         except HTTPError as http_err:
-            self.logger.error(f"HTTP error occurred: {http_err}")
+            self.logger.error("HTTP error occurred: %s", http_err)
             raise
 
     def get_weibo_longtext(self, mblogid=None):
@@ -143,69 +148,57 @@ class BlogApi(BaseApi):
             ValueError: If the post ID is not provided.
             HTTPError: On unsuccessful HTTP request.
         """
-        # Ensure uid is provided either via class initialization or method argument
         if mblogid is None:
-            raise ValueError("User ID (uid) must be provided either in constructor or as a method argument.")
+            raise ValueError("mblogid must be provided either in constructor or as a method argument.")
 
-        # Prepare URL parameters, automatically excluding None values
-        params = {
-            'id': mblogid,
-        }
-        # Use urlencode to construct the query string, it will ignore keys with None values
-        query_string = urlencode(params, doseq=True, safe=':' """, encode_plus=False""")
-
-        # Construct the final URL
-        get_weibo_longtext_url = self.config['urls']['blog']['get_weibo_longtext_url']
-        base_url = remove_query_params(get_weibo_longtext_url)
+        params = {'id': mblogid}
+        query_string = urlencode(params, doseq=True)
+        base_url = remove_query_params(self.config['urls']['blog']['get_weibo_longtext_url'])
         formatted_url = f"{base_url}?{query_string}"
 
         try:
             response = self.session.get(formatted_url)
-            # Raises an HTTPError if the HTTP request returned an unsuccessful status code
             response.raise_for_status()
-            self.logger.info(f"Fetched blog longtext for ID {mblogid}. Response status: {response.status_code}")
-
-            # LoggingSession has already check json transform
+            self.logger.info("Fetched blog longtext for ID %s. Response status: %s",
+                             mblogid, response.status_code)
             return response.json()
         except HTTPError as http_err:
-            self.logger.error(f"HTTP error occurred: {http_err}")
+            self.logger.error("HTTP error occurred: %s", http_err)
             raise
 
-        # response = self.session.get(formatted_url)
-        # self.logger.info(f"Fetching blog longtext for ID {id}. Response status: {response.status_code}")
-        # return response
-
-    def download_image(self, image_url):
+    def download_image(self, image_url, mblogid=None):
         """
         Download an image from a specified URL.
 
         Args:
             image_url (str, required): The URL of the image to be downloaded.
+            mblogid (str, optional): The microblog ID for logging purposes.
 
         Returns:
-            tuple
-                A tuple containing:
-                - filename: The extracted filename from the URL, suitable for saving the downloaded content.
-                - response.raw: Raw content of the HTTP response, can be saved directly to a file.
+            tuple: A tuple containing the filename and raw content of the HTTP response.
 
         Raises:
-            HTTPError:
-                If an HTTP error occurs during the image download. The error message is logged before re-raising.
+            ValueError: If image_url is not provided.
+            HTTPError: If an HTTP error occurs during the image download.
         """
         if image_url is None:
             raise ValueError("image_url must be provided either in constructor or as a method argument.")
 
-        try:
-            response = self.session.get(image_url, stream=True)
-            response.raise_for_status()  # Raises an HTTPError if the HTTP request returned an unsuccessful status code
+        max_retries = 3
+        for _ in range(max_retries):
+            try:
+                response = self.session.get(image_url, stream=True, timeout=30)
+                # Raises an HTTPError if the HTTP request returned an unsuccessful status code
+                response.raise_for_status()
 
-            # parsed file name
-            parsed_url = urlparse(image_url)
-            path = parsed_url.path
-            filename = unquote(path.split('/')[-1])
+                parsed_url = urlparse(image_url)
+                path = parsed_url.path
+                filename = unquote(path.split('/')[-1])
+                self.logger.info("Downloading blog image for ID %s from %s", mblogid, image_url)
+                return filename, response.raw
+            except (ChunkedEncodingError, HTTPError, RequestException) as error:
+                self.logger.error("An error occurred while downloading the image: %s", error)
+                time.sleep(2)
 
-            self.logger.info("Image downloaded from %s", image_url)
-            return filename, response.raw
-        except HTTPError as http_err:
-            self.logger.error(f"HTTP error occurred while downloading image: %s", http_err)
-            raise
+        self.logger.error("Failed to download the image after %d attempts", max_retries)
+        return None, None
