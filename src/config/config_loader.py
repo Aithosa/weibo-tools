@@ -14,7 +14,8 @@ def load_config():
     """
     Loads configuration from YAML files.
 
-    :return: Parsed configuration dictionary
+    Returns:
+        Parsed configuration dictionary
     """
     # Construct configuration file paths
     main_config_path = os.path.join(CONFIG_DIR, 'config.yaml')
@@ -40,3 +41,7 @@ def load_config():
     wb_config.update(secrets)
 
     return wb_config
+
+
+if __name__ == '__main__':
+    load_config()
